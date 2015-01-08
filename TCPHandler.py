@@ -22,20 +22,14 @@ class Packet(object):
     def _checksum(self, msg):
         #creates checksum for the tcp header
         s = 0
-        print msg
         # # loop taking 1 character at a time
         for i in xrange(len(msg)):
             w = int(msg[i], 16)
             s = s + w
-
-        print s
-        s = (s>>8) + (s & 0xff)
-        s = s + (s >> 8)
-
-        #complement and mask to 4 byte short
-        s = ~s & 0xff
-
-        return s
+        s = hex(s)
+        
+        final = '0x' + s[len(s)-2:]
+        return final
 
     def _get_int_from_data(self, i, val):
         #marks the current bit position in status if the bit position is true
@@ -60,7 +54,6 @@ class Packet(object):
                 i = len(STAT0KEYS) - 1
                 total = 0
                 for key in STAT0KEYS:
-                    print i
                     for statobj in data:
                         if key in statobj:
                             total += self._get_int_from_data(i, statobj[key])
@@ -70,6 +63,15 @@ class Packet(object):
                 return hex(int(total))
         else:
             raise ValueError
+
+    def _split_hex(self, val, initial_array):
+        if len(val) > 4:
+            s = val[2:]
+            l = ['0x' + s[i:i+2] for i in range(0, len(s), 2)]
+            initial_array += l
+        else:
+            initial_array.append(val)
+
 
     def _parse_data(self, data):
         initial_array = []
@@ -88,7 +90,7 @@ class Packet(object):
             elif key == 'stat0':
                 initial_array.append(self._parse_stat(data[key], key))
             else:
-                initial_array.append(hex(data[key]))
+                self._split_hex(hex(data[key]), initial_array)
         return initial_array
 
     def _format_data(self, data):
@@ -108,7 +110,7 @@ class Packet(object):
         #add the other packet data ie; status, etc to the packet array
         packet_arr += initial_arr
         #compute chksum and append to the packet message
-        chksum = hex(self._checksum(packet_arr))
+        chksum = self._checksum(packet_arr)
 
         packet_arr.append(chksum)
         packed = b''.join(packet_arr)
