@@ -2,13 +2,14 @@ __author__ = 'radicalcakes'
 
 #raw socket server for sending the tcp packet to a configurable ip address
 import socket
+import math
 import binascii
 from struct import *
 from config import CONFIG
 
 
-STAT1KEYS = ['tamper', 'cleanMe', 'alarm4', 'alarm3', 'alarm2', 'primaryAlarm']
-STAT0KEYS = ['lowBattery', 'caseTamper', 'reset']
+STAT1KEYS = ['tamper', 'cleanMe', 'reserved1', 'reserved2', 'alarm4', 'alarm3', 'alarm2', 'primaryAlarm']
+STAT0KEYS = ['reserved', 'lowBattery', 'caseTamper', 'set', 'reset', 'reserved1', 'reserved2', 'reserved3']
 DATAKEYS = ['originator', 'firstHop', 'traceCount', 'traceIds', 'hopCount', '0x3e', 'pti', 'stat1', 'stat0', 'level', 'margin']
 
 
@@ -36,34 +37,37 @@ class Packet(object):
 
         return s
 
-    def _bool_to_int(self, val):
-        #converts a bool value to representations of 1/0
+    def _get_int_from_data(self, i, val):
+        #marks the current bit position in status if the bit position is true
         if val:
-            return hex(1)
-        else:
-            return hex(0)
+            return math.pow(2, i)
+        return 0
 
     def _parse_stat(self, data, stat):
         #ensure that the correct stat key is passed
         if stat in ['stat1', 'stat0']:
             if stat == 'stat1':
-                stat1 = []
+                i = len(STAT1KEYS) - 1
+                total = 0
                 for key in STAT1KEYS:
                     for statobj in data:
                         if key in statobj:
-                            stat1.append(statobj[key])
-                return self._bool_to_int(stat1.count(True) >= 1)
+                            total += self._get_int_from_data(i, statobj[key])
+
+                    i -= 1
+                return hex(int(total))
             else:
-                stat0 = []
+                i = len(STAT0KEYS) - 1
+                total = 0
                 for key in STAT0KEYS:
+                    print i
                     for statobj in data:
                         if key in statobj:
-                            stat0.append(statobj[key])
-                        #this is for flipping the third bit
-                    if True not in stat0:
-                        stat0.append(True)
+                            total += self._get_int_from_data(i, statobj[key])
 
-                    return self._bool_to_int(stat0.count(True) >= 1)
+                    i -= 1
+
+                return hex(int(total))
         else:
             raise ValueError
 
