@@ -4,7 +4,6 @@ __author__ = 'radicalcakes'
 import socket
 import math
 import binascii
-from struct import *
 from config import CONFIG
 
 
@@ -26,7 +25,7 @@ class Packet(object):
         #creates checksum for the tcp header
         s = hex(sum(map(self._hex_to_int, msg)))
         final = '0x' + s[len(s)-2:]
-        
+
         return final
 
     def _get_int_from_data(self, i, val):
@@ -83,7 +82,7 @@ class Packet(object):
                 continue
             elif key == 'traceIds':
                 for trcid in data[key]:
-                    initial_array.append(hex(trcid))
+                    self._split_hex(hex(trcid), initial_array)
             elif key == 'stat1':
                 initial_array.append(self._parse_stat(data[key], key))
             elif key == 'stat0':
