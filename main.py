@@ -9,7 +9,7 @@ import tornado.escape
 import tornado.httpserver
 import tornado.tcpserver
 import tornado.iostream
-
+from config import CONFIG
 #custom tcphandler module
 import TCPHandler
 
@@ -37,15 +37,17 @@ class JsonParseHandler(tornado.web.RequestHandler):
         print dict_data
         packet = TCPHandler.Packet(dict_data)
         packet.send()
+        if CONFIG['mode'] == 'script':
+            print "halting all http listeners."
+            tornado.ioloop.IOLoop.instance().stop()
 
 
 def main():
-    print "Running the http server on the given port: " + str(options.port)
+    print "Accepting json data on port: " + str(options.port)
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(MainHandler())
     http_server.listen(options.port)
-    io_loop = tornado.ioloop.IOLoop.instance()
-    io_loop.start()
+    tornado.ioloop.IOLoop.instance().start()
 
 
 if __name__ == "__main__":

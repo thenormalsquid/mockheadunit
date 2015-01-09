@@ -1,6 +1,7 @@
 __author__ = 'radicalcakes'
 
 #raw socket server for sending the tcp packet to a configurable ip address
+import sys
 import socket
 import math
 import binascii
@@ -123,15 +124,16 @@ class Packet(object):
         return new_data
 
     def send(self):
-        self.socket.connect((CONFIG['dest_ip'], CONFIG['dest_port']))
+        # self.socket.connect((CONFIG['dest_ip'], CONFIG['dest_port']))
         print 'sending "%s"' % binascii.hexlify(self.data)
-        if type(self.data) == list:
-            for packet in self.data:
-                self.socket.send(packet)
-        else:
-            self.socket.send(self.data)
-
-        self.socket.close()
+        # if type(self.data) == list:
+        #     for packet in self.data:
+        #         self.socket.send(packet)
+        # else:
+        #     self.socket.send(self.data)
+        #
+        # self.socket.close()
+        self.data.toFile(sys.stdout)
 
 
 
