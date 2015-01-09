@@ -32,6 +32,7 @@ class JsonParseHandler(tornado.web.RequestHandler):
     Receives the message in a json format via a POST request
     """
     def post(self):
+        print self.request.body
         dict_data = tornado.escape.json_decode(self.request.body)
         print dict_data
         packet = TCPHandler.Packet(dict_data)

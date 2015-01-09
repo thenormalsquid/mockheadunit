@@ -123,7 +123,7 @@ class Packet(object):
         return new_data
 
     def send(self):
-        self.socket.connect(CONFIG['dest_ip'], CONFIG['dest_port'])
+        self.socket.connect((CONFIG['dest_ip'], CONFIG['dest_port']))
         print 'sending "%s"' % binascii.hexlify(self.data)
         if type(self.data) == list:
             for packet in self.data:
