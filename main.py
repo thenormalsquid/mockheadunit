@@ -38,7 +38,6 @@ class JsonParseHandler(tornado.web.RequestHandler):
         packet = TCPHandler.Packet(dict_data)
         packet.send()
         if CONFIG['mode'] == 'script':
-            print "halting all http listeners."
             tornado.ioloop.IOLoop.instance().stop()
 
 

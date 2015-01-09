@@ -133,7 +133,7 @@ class Packet(object):
         #     self.socket.send(self.data)
         #
         # self.socket.close()
-        self.data.toFile(sys.stdout)
+        sys.stdout.write(self.data)
 
 
 
