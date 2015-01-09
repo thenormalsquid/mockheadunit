@@ -19,16 +19,14 @@ class Packet(object):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.data = self._format_list(data) if type(data) == list else self._format_data(data)
 
+    def _hex_to_int(self, val):
+        return int(val, 16)
+
     def _checksum(self, msg):
         #creates checksum for the tcp header
-        s = 0
-        # # loop taking 1 character at a time
-        for i in xrange(len(msg)):
-            w = int(msg[i], 16)
-            s = s + w
-        s = hex(s)
-        
+        s = hex(sum(map(self._hex_to_int, msg)))
         final = '0x' + s[len(s)-2:]
+        
         return final
 
     def _get_int_from_data(self, i, val):
@@ -46,6 +44,7 @@ class Packet(object):
                 for key in STAT1KEYS:
                     for statobj in data:
                         if key in statobj:
+                            #if the status is true, mark the bit position: 2^i where i is the bit position
                             total += self._get_int_from_data(i, statobj[key])
 
                     i -= 1
